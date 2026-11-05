@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Replaces `Prisma.JsonValue` with domain types for fields annotated as `/// [TypeName]`.
+// Types are declared in src/infrastructure/data-access/prisma-json.d.ts (PrismaJson namespace).
+generator json {
+  provider = "prisma-json-types-generator"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  description String       @db.Text
+  skills      Skill[] // implicit m2m (join table `_ProfileToSkill`)
+  links       Link[]
+  experiences Experience[]
+
+  @@map("profile")
+}
+
+model Skill {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  profiles Profile[] // implicit m2m
+
+  @@map("skill")
+}
+
+// `provider` is a computed field (derived from `url` in the domain layer), so it is not stored.
+model Link {
+  id        Int      @id @default(autoincrement())
+  profileId Int      @map("profile_id")
+  url       String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  project   Project? // technical back-relation (1:1), see Project.link
+
+  @@unique([profileId, url])
+  @@map("link")
+}
+
+model Company {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  positions Position[] // technical back-relation: required by Prisma, creates no column, never queried
+
+  @@map("company")
+}
+
+model Job {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  positions Position[] // technical back-relation: required by Prisma, creates no column, never queried
+
+  @@map("job")
+}
+
+model Position {
+  id          Int          @id @default(autoincrement())
+  companyId   Int          @map("company_id")
+  jobId       Int          @map("job_id")
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  job         Job          @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  experiences Experience[] // technical back-relation: required by Prisma, creates no column, never queried
+
+  @@unique([companyId, jobId])
+  @@index([jobId])
+  @@map("position")
+}
+
+model Experience {
+  id           Int       @id @default(autoincrement())
+  profileId    Int       @map("profile_id")
+  positionId   Int       @map("position_id")
+  /// [Period]
+  period       Json
+  achievements String[]
+  profile      Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  position     Position  @relation(fields: [positionId], references: [id], onDelete: Restrict)
+  projects     Project[] // technical back-relation: required by Prisma, never queried
+
+  @@unique([profileId, positionId])
+  @@map("experience")
+}
+
+model Project {
+  id           Int         @id @default(autoincrement())
+  linkId       Int         @map("link_id") @unique
+  name         String      @unique
+  experienceId Int?        @map("experience_id")
+  link         Link        @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  experience   Experience? @relation(fields: [experienceId], references: [id], onDelete: SetNull)
+
+  @@index([experienceId])
+  @@map("project")
+}
