@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client'
 import { PrismaService } from '@/infrastructure/data-access/prisma/prisma.service';
 import { ProfileRepository } from '@/domain/profile/types/contracts';
 import {
@@ -19,25 +20,65 @@ import { resolveLinkProvider } from '@/infrastructure/data-access/utils/link-pro
 export class PrismaProfileRepository extends ProfileRepository {
   constructor(private readonly prisma: PrismaService) {
     super();
+    this.metaSql = {
+      objectFieldsClauses: 'profile.*',
+      sqlParts: {
+        skills: {
+          fc_sql: 's.id AS skill_id, s.name AS skill_name',
+          join_sql: `INNER JOIN "_ProfileToSkill" skill_m2m ON skill_m2m."A" = profile.id
+                    INNER JOIN skill s ON skill_m2m."B" = s.id`
+        },
+        experience: {
+          fc_sql: 'exp.id AS experience_id, exp.achievements, exp.period, j.name AS position, c.name AS company',
+          join_sql: `INNER JOIN experience exp ON profile.id = exp.profile_id 
+                    LEFT JOIN position pos ON exp.position_id = pos.id
+                    LEFT JOIN job j ON pos.job_id = j.id
+                    LEFT JOIN company c ON pos.company_id = c.id`
+        },
+        links: {
+          fc_sql: 'l.id AS link_id, l.url AS url',
+          join_sql: `LEFT JOIN link l ON profile.id = l.profile_id
+                    `
+        },
+        projects: {
+          fc_sql: 'p.id AS project_id, p.name AS project_name, l_1.url AS project_url',
+          join_sql: `
+                    LEFT JOIN link l_1 ON l_1.profile_id = $1
+                    LEFT JOIN project p ON p.link_id = l_1.id
+                    `
+        }
+      },
+      tail: 'WHERE profile.id = $1 ORDER BY id'
+    }
   }
 
-  async findById(id: number): Promise<Profile | null> {
-  
-    const raw = await this.prisma.profile.findUnique({
-      where: { id },      
-      include: {
-        skills: true,
-        experiences: {
-          include: {
-            position: {
-              include: { company: true, job: true },
-            },
-          },
-        },
-      },
-    })
+  async findById(id: number, uFields: string[]): Promise<Profile | null> {
+    const selectFields = [this.metaSql.objectFieldsClauses]
+    const joinClauses: string[] = []
 
-    if (!raw) {
+    for (let f of uFields){
+      var fc = this.metaSql.sqlParts[f]
+      if (fc){
+        selectFields.push(fc.fc_sql)
+        if (fc.join_sql){
+          joinClauses.push(fc.join_sql!)
+        }
+      }
+    }
+
+    const sql = `
+      SELECT ${selectFields.join(', ')}
+      FROM profile
+      ${joinClauses.join('\n')}
+      ${this.metaSql.tail}
+    `
+
+    const raw = await this.prisma.$queryRawUnsafe<any[]>(
+      sql,
+      ...[id]
+    )
+
+    if (!raw.length) {
       return null;
     }
 
@@ -46,59 +87,53 @@ export class PrismaProfileRepository extends ProfileRepository {
 
   private async mapProfile(raw: any): Promise<Profile> {
 
-    const rawLinks: Array<Link> = await this.prisma.$queryRaw`
-      SELECT 
-        l.id AS id, 
-        l.url AS url, 
-        p.id AS project_id, 
-        p.name AS project_name, 
-        job.name AS job_name, 
-        comp.name AS company_name
-      FROM link l LEFT JOIN project p ON l.id = p.link_id LEFT JOIN experience e ON p.experience_id = e.id 
-      LEFT JOIN position pos ON e.position_id = pos.id 
-      LEFT JOIN company comp ON pos.company_id = comp.id 
-      LEFT JOIN job job ON pos.job_id = job.id 
-      WHERE l.profile_id = ${raw.id} ORDER BY id`
-      
-
     const profile = new Profile()
-    const projects = [] as Array<Project>
+    const skills = new Map<number, string>()
+    const links = new Map<number, Link>()
+    const experiences = new Map<number, Experience>()
+    const projects = new Map<number, Project>()
 
-    profile.skills = (raw.skills ?? []).map((s: any) => {
-      return s.name;
-    });
 
-    profile.links = (rawLinks ?? []).map((l: any) => {
-      const link = new Link();
-      link.id = l.id;
-      link.url = l.url;
-      link.provider = resolveLinkProvider(l.url);
 
-      if (l.project_name){
-        var project = new Project()
-        project.id = l.project_id
-        project.name = l.project_name
-        project.url = l.url
-        project.company = l.company_name
-        projects.push(project)
+    profile.id = raw[0].id
+    profile.name = raw[0].name
+    profile.description = raw[0].description
+
+    for (let row of raw){
+      if (row.skill_id && !skills.has(row.skull_id)){
+        var skill: string = row.skill_name
+        skills.set(row.skill_id, skill)
       }
-      return link;
-    });
+      if (row.experience_id && !experiences.has(row.experience_id)){
+        var experience = new Experience()
+        experience.id = row.experience_id
+        experience.achievements = row.achievements ?? []
+        experience.period = row.period
+        experience.company = row.company
+        experience.position = row.position
+        experiences.set(row.experience_id, experience)
+      }
+      if (row.link_id && !links.has(row.link_id)){
+        var link = new Link()
+        link.id = row.link_id
+        link.url = row.url
+        link.provider = resolveLinkProvider(row.url)
+        links.set(row.link_id, link)
+      }
+      if (row.project_id && !projects.has(row.project_id)){
+        var project = new Project()
+        project.id = row.project_id
+        project.url = row.project_url
+        project.name = row.project_name
+        project.company = row.company
+        projects.set(row.project_id, project)
+      }
+    }
 
-    profile.experience = (raw.experiences ?? []).map((e: any) => {
-      const exp = new Experience();
-      exp.id = e.id;
-      exp.company = e.position.company.name;
-      exp.position = e.position.job.name;
-      exp.period = {
-        from: e.period.from,
-        to: e.period.to ?? null,
-      } as Period;
-      exp.achievements = e.achievements ?? [];
-      return exp;
-    });
-
-    profile.projects = projects
+    profile.skills = Array.from(skills.values())
+    profile.experience = Array.from(experiences.values())
+    profile.links = Array.from(links.values())
+    profile.projects = Array.from(projects.values())
 
     return profile;
   }

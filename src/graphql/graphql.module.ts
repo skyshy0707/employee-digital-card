@@ -12,6 +12,8 @@ import { DomainModule } from '@/domain/profile/domain.module';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/graphql/schema.gql'),
       sortSchema: true,
+      introspection: true,
+      path: '/api/graphql', // соответствует setGlobalPrefix('api') в main.ts
       playground: true, // Apollo Sandbox / GraphQL Playground
     }),
   ],

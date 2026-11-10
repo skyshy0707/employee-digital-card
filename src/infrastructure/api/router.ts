@@ -14,7 +14,7 @@ export class Router {
   constructor(private readonly service: ProfileService) {}
 
   @Get(':id')
-  async getProfile(@Param('id') id: string): Promise<Profile> {
-    return this.service.getProfile(Number(id));
+  async getProfile(@Param('id') id: string, uFields: string[]): Promise<Profile> {
+    return this.service.getProfile(Number(id), uFields);
   }
 }

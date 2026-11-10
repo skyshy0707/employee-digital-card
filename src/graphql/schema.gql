@@ -1,0 +1,55 @@
+type Query {
+  profile(id: Int!): Profile
+}
+
+type Profile {
+  id: ID!
+  name: String!
+  description: String
+  links: [Link!]
+  skills: [Skill!]
+  experience: [Experience!]
+  projects: [Project!]
+}
+
+type Skill {
+  id: ID!
+  name: String!
+}
+
+type Link {
+  id: ID!
+  url: String!
+  provider: String
+  project: Project
+}
+
+type Company {
+  id: ID!
+  name: String!
+}
+
+type Job {
+  id: ID!
+  name: String!
+}
+
+type Experience {
+  id: ID!
+  company: String!
+  position: String!
+  period: Period!
+  achievements: [String!]!
+}
+
+type Period {
+  from: String!
+  to: String
+}
+
+type Project {
+  id: ID!
+  name: String!
+  url: String!
+  company: String
+}

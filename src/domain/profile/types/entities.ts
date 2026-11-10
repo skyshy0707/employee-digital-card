@@ -1,4 +1,5 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
+import GraphQLJSON from 'graphql-type-json';
 
 /**
  * Доменные сущности цифровой визитки.
@@ -6,12 +7,10 @@ import { ObjectType, Field, ID } from '@nestjs/graphql';
  * выходные типы для запросов.
  */
 
-@ObjectType()
+// Whole JsonField as result:
 export class Period {
-  @Field()
-  from: string;
 
-  @Field(() => String, { nullable: true })
+  from: string;
   to: string | null;
 }
 
@@ -55,8 +54,10 @@ export class Experience {
   /** Название должности (имя, а не id). */
   position: string;
 
-  @Field(() => Period)
+  @Field(() => GraphQLJSON)
   period: Period;
+
+
 
   @Field(() => [String])
   achievements: string[];
@@ -109,8 +110,8 @@ export class Profile {
   @Field(() => [Link])
   links: Link[];
 
-  @Field(() => [Skill])
-  skills: Skill[];
+  @Field(() => [String])
+  skills: String[];
 
   @Field(() => [Experience])
   experience: Experience[];
