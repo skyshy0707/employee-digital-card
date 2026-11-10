@@ -160,7 +160,7 @@ infrastructure/data-access/prisma/repository.impl.ts
 
 Структура запроса:
 
-```json
+```javascript
 
 query {
   profile(id: <number>) {
