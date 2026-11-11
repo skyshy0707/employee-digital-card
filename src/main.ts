@@ -12,6 +12,12 @@ async function bootstrap() {
   });
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  await app.listen(process.env.PORT ?? 3000);
+
+  
+  await (
+    process.env.NODE_ENV == 'production' ? 
+    app.listen(process.env.PORT ?? 3000, '0.0.0.0') : 
+    app.listen(process.env.PORT ?? 3000)
+  )
 }
 bootstrap();

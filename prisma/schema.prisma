@@ -101,3 +101,9 @@ model Project {
   @@index([experienceId])
   @@map("project")
 }
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") //для работы npx prisma migrate deploy!
+}

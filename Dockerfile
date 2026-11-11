@@ -17,7 +17,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prisma ./prisma
-EXPOSE 3000
+EXPOSE 3000 7860
 # При старте контейнера: миграции + сид, затем запуск приложения
 # && npx dist/infrastructure/data-access/seed/seed.js && node dist/main.js
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/infrastructure/data-access/seed/seed.js && node dist/main.js"]
