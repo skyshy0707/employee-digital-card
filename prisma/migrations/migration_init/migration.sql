@@ -57,7 +57,8 @@ CREATE TABLE "experience" (
     "id" SERIAL NOT NULL,
     "profile_id" INTEGER NOT NULL,
     "position_id" INTEGER NOT NULL,
-    "period" JSON NOT NULL,
+    "from" TEXT NOT NULL,
+    "to" TEXT,
     "achievements" TEXT[] NOT NULL,
     CONSTRAINT "experience_pkey" PRIMARY KEY ("id")
 );
@@ -124,6 +125,9 @@ ALTER TABLE "experience" ADD CONSTRAINT "experience_profile_id_fkey" FOREIGN KEY
 
 -- AddForeignKey
 ALTER TABLE "experience" ADD CONSTRAINT "experience_position_id_fkey" FOREIGN KEY ("position_id") REFERENCES "position"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- Valid ISO date
+ALTER TABLE "experience" ADD CONSTRAINT "valid_iso_date" CHECK ("from" ~ '^\d{4}(-\d{2}(-\d{2})?)?$');
 
 -- AddForeignKey
 ALTER TABLE "project" ADD CONSTRAINT "project_link_id_fkey" FOREIGN KEY ("link_id") REFERENCES "link"("id") ON DELETE CASCADE ON UPDATE CASCADE;

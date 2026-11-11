@@ -78,13 +78,15 @@ model Experience {
   profileId    Int       @map("profile_id")
   positionId   Int       @map("position_id")
   /// [Period]
-  period       Json
+  from         String    @db.VarChar(10) // Хранит "2024-05" или "2024-05-15"
+  to           String?   @db.VarChar(10) // null = по настоящее время
   achievements String[]
   profile      Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
   position     Position  @relation(fields: [positionId], references: [id], onDelete: Restrict)
   projects     Project[] // technical back-relation: required by Prisma, never queried
 
   @@unique([profileId, positionId])
+  @@index([to]) 
   @@map("experience")
 }
 

@@ -10,8 +10,8 @@ import GraphQLJSON from 'graphql-type-json';
 // Whole JsonField as result:
 export class Period {
 
-  from: string;
-  to: string | null;
+  from: Date;
+  to: Date | null;
 }
 
 @ObjectType()

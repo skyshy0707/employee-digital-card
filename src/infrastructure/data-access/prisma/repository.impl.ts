@@ -29,7 +29,7 @@ export class PrismaProfileRepository extends ProfileRepository {
                     INNER JOIN skill s ON skill_m2m."B" = s.id`
         },
         experience: {
-          fc_sql: 'exp.id AS experience_id, exp.achievements, exp.period, j.name AS position, c.name AS company',
+          fc_sql: 'exp.id AS experience_id, exp.achievements, exp.from, exp.to, j.name AS position, c.name AS company',
           join_sql: `INNER JOIN experience exp ON profile.id = exp.profile_id 
                     LEFT JOIN position pos ON exp.position_id = pos.id
                     LEFT JOIN job j ON pos.job_id = j.id
@@ -108,7 +108,9 @@ export class PrismaProfileRepository extends ProfileRepository {
         var experience = new Experience()
         experience.id = row.experience_id
         experience.achievements = row.achievements ?? []
-        experience.period = row.period
+        experience.period = new Period()
+        experience.period.from = row.from
+        experience.period.to = row.to
         experience.company = row.company
         experience.position = row.position
         experiences.set(row.experience_id, experience)

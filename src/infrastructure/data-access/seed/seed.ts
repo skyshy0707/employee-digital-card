@@ -111,7 +111,8 @@ async function main() {
   const experiences = [
     {
       positionKey: 'ООО Технологии|Middle Backend',
-      period: { from: '2022-03', to: '2024-06' },
+      from: '2022-03', 
+      to: '2024-06',
       achievements: [
         'Реализовал GraphQL API на NestJS с оптимизацией через DataLoader',
         'Перевёл сервис на Docker и настроил CI/CD',
@@ -119,12 +120,14 @@ async function main() {
     },
     {
       positionKey: 'ЗАО Разработка|Junior Backend',
-      period: { from: '2020-06', to: '2022-02' },
+      from: '2020-06', 
+      to: '2022-02',
       achievements: ['Разрабатывал REST API на Node.js и Express'],
     },
     {
       positionKey: 'ИП Фриланс|Senior Backend',
-      period: { from: '2024-07', to: null },
+      from: '2024-07', 
+      to: null,
       achievements: ['Веду разработку цифровой визитки (этот проект)'],
     },
   ];
@@ -140,7 +143,8 @@ async function main() {
       create: {
         profileId: profile.id,
         positionId: positions[exp.positionKey].id,
-        period: exp.period,
+        from: exp.from,
+        to: exp.to,
         achievements: exp.achievements,
       },
     });
