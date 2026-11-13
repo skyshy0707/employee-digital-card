@@ -16,8 +16,8 @@
 
 
 > [!WARNING]
-> #### Проект развёрнут на `SnapShot + Supabase (СУБД)`: https://employee-digital-card-217c7.containers.snapdeploy.app/api/graphql
-> #### NB! Необходимо подождать порядка 2-х минут, чтобы сервис "проснулся" и потворить запрос ещё раз - данность бесплатной версии.
+> #### Проект развёрнут на `SnapDeploy + Supabase (СУБД)`: https://employee-digital-card-217c7.containers.snapdeploy.app/api/graphql
+> #### NB! Необходимо подождать порядка 2-х минут, чтобы сервис "проснулся", обновив страницу.
 
 
 ## Структура API:
