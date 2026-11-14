@@ -37,13 +37,13 @@ export class PrismaProfileRepository extends ProfileRepository {
         },
         links: {
           fc_sql: 'l.id AS link_id, l.url AS url',
-          join_sql: `LEFT JOIN link l ON profile.id = l.profile_id
+          join_sql: `INNER JOIN link l ON profile.id = l.profile_id
                     `
         },
         projects: {
           fc_sql: 'p.id AS project_id, p.name AS project_name, l_1.url AS project_url',
           join_sql: `
-                    LEFT JOIN link l_1 ON l_1.profile_id = $1
+                    INNER JOIN link l_1 ON l_1.profile_id = $1
                     LEFT JOIN project p ON p.link_id = l_1.id
                     `
         }
