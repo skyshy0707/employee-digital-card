@@ -1,23 +1,27 @@
+/**
+ * Реализация ProfileRepository на базе Prisma.
+ * Загружает профиль со всеми связями и маппит в доменные сущности.
+ */
+
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client'
-import { PrismaService } from '@/infrastructure/data-access/prisma/prisma.service';
-import { ProfileRepository } from '@/domain/profile/types/contracts';
+
+//import { ProfileRepository } from '@/domain/profile/types/contracts';
 import {
   Profile,
-  Skill,
   Link,
   Experience,
   Project,
   Period,
 } from '@/domain/profile/types/entities';
+import { PrismaService } from '@/infrastructure/data-access/prisma/prisma.service';
 import { resolveLinkProvider } from '@/infrastructure/data-access/utils/link-provider';
+import { BaseRepository } from '@/infrastructure/data-access/types/contracts'
 
-/**
- * Реализация ProfileRepository на базе Prisma.
- * Загружает профиль со всеми связями и маппит в доменные сущности.
- */
+
 @Injectable()
-export class PrismaProfileRepository extends ProfileRepository {
+export class PrismaProfileRepository extends BaseRepository {
+
+
   constructor(private readonly prisma: PrismaService) {
     super();
     this.metaSql = {
@@ -25,25 +29,25 @@ export class PrismaProfileRepository extends ProfileRepository {
       sqlParts: {
         skills: {
           fc_sql: 's.id AS skill_id, s.name AS skill_name',
-          join_sql: `INNER JOIN "_ProfileToSkill" skill_m2m ON skill_m2m."A" = profile.id
+          join_sql: `LEFT JOIN "_ProfileToSkill" skill_m2m ON skill_m2m."A" = profile.id
                     INNER JOIN skill s ON skill_m2m."B" = s.id`
         },
         experience: {
           fc_sql: 'exp.id AS experience_id, exp.achievements, exp.from, exp.to, j.name AS position, c.name AS company',
-          join_sql: `INNER JOIN experience exp ON profile.id = exp.profile_id 
+          join_sql: `LEFT JOIN experience exp ON profile.id = exp.profile_id 
                     LEFT JOIN position pos ON exp.position_id = pos.id
                     LEFT JOIN job j ON pos.job_id = j.id
                     LEFT JOIN company c ON pos.company_id = c.id`
         },
         links: {
           fc_sql: 'l.id AS link_id, l.url AS url',
-          join_sql: `INNER JOIN link l ON profile.id = l.profile_id
+          join_sql: `LEFT JOIN link l ON profile.id = l.profile_id
                     `
         },
         projects: {
           fc_sql: 'p.id AS project_id, p.name AS project_name, l_1.url AS project_url',
           join_sql: `
-                    INNER JOIN link l_1 ON l_1.profile_id = $1
+                    LEFT JOIN link l_1 ON l_1.profile_id = $1
                     LEFT JOIN project p ON p.link_id = l_1.id
                     `
         }

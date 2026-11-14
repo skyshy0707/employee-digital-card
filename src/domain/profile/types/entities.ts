@@ -1,13 +1,12 @@
+/**
+ * Доменные сущности цифровой визитки с их составляющими.
+ * Декораторы GraphQL для определения типа в Apollo Server.
+ */
+
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 import GraphQLJSON from 'graphql-type-json';
 
-/**
- * Доменные сущности цифровой визитки.
- * Помечены декораторами GraphQL, чтобы Apollo Server мог определить
- * выходные типы для запросов.
- */
-
-// Whole JsonField as result:
+// Для проверки на уровне данных:
 export class Period {
 
   from: Date;

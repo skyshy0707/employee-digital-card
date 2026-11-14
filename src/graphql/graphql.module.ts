@@ -1,9 +1,11 @@
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
-import { ProfileResolver } from '@/graphql/profile.resolver';
+
 import { DomainModule } from '@/domain/profile/domain.module';
+import { ProfileResolver } from '@/graphql/profile.resolver';
+
 
 @Module({
   imports: [
