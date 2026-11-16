@@ -107,7 +107,7 @@ export class Profile {
   links: Link[];
 
   @Field(() => [String])
-  skills: String[];
+  skills: string[];
 
   @Field(() => [Experience])
   experience: Experience[];

@@ -132,8 +132,10 @@ async function main() {
       achievements: ['Веду разработку цифровой визитки (этот проект)'],
     },
   ];
+  const targetPositionKey = 'ООО Технологии|Middle Backend';
+  let targetExperienceId: number | undefined;
   for (const exp of experiences) {
-    await prisma.experience.upsert({
+    const rec = await prisma.experience.upsert({
       where: {
         profileId_positionId: {
           profileId: profile.id,
@@ -149,6 +151,9 @@ async function main() {
         achievements: exp.achievements,
       },
     });
+    if (exp.positionKey === targetPositionKey) {
+      targetExperienceId = rec.id;
+    }
   }
 
   // --- 8. Проекты (идемпотентно) ---
@@ -159,7 +164,7 @@ async function main() {
     update: {
       name: 'Digital Profile',
       experience: {
-        connect: { id: positions['ООО Технологии|Middle Backend'].id },
+        connect: { id: targetExperienceId },
       },
     },
     create: {
@@ -168,7 +173,7 @@ async function main() {
         connect: { id: repoLink.id },
       },
       experience: {
-        connect: { id: positions['ООО Технологии|Middle Backend'].id },
+        connect: { id: targetExperienceId },
       },
     },
   });

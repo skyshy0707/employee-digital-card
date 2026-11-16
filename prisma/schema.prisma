@@ -2,8 +2,7 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Replaces `Prisma.JsonValue` with domain types for fields annotated as `/// [TypeName]`.
-// Types are declared in src/infrastructure/data-access/prisma-json.d.ts (PrismaJson namespace).
+// Типы сущностей указаны в src/infrastructure/data-access/prisma-json.d.ts.
 generator json {
   provider = "prisma-json-types-generator"
 }
@@ -11,14 +10,14 @@ generator json {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL") //для работы npx prisma migrate deploy!
+  directUrl = env("DIRECT_URL") //для работы `npx prisma migrate deploy`
 }
 
 model Profile {
   id          Int          @id @default(autoincrement())
   name        String       @unique
   description String       @db.Text
-  skills      Skill[] // implicit m2m (join table `_ProfileToSkill`)
+  skills      Skill[] // явная m2m (join table `_ProfileToSkill`)
   links       Link[]
   experiences Experience[]
 
@@ -33,13 +32,12 @@ model Skill {
   @@map("skill")
 }
 
-// `provider` is a computed field (derived from `url` in the domain layer), so it is not stored.
 model Link {
   id        Int      @id @default(autoincrement())
   profileId Int      @map("profile_id")
   url       String
   profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  project   Project? // technical back-relation (1:1), see Project.link
+  project   Project?
 
   @@unique([profileId, url])
   @@map("link")
@@ -48,7 +46,7 @@ model Link {
 model Company {
   id        Int        @id @default(autoincrement())
   name      String     @unique
-  positions Position[] // technical back-relation: required by Prisma, creates no column, never queried
+  positions Position[]
 
   @@map("company")
 }
@@ -56,7 +54,7 @@ model Company {
 model Job {
   id        Int        @id @default(autoincrement())
   name      String     @unique
-  positions Position[] // technical back-relation: required by Prisma, creates no column, never queried
+  positions Position[]
 
   @@map("job")
 }
@@ -67,7 +65,7 @@ model Position {
   jobId       Int          @map("job_id")
   company     Company      @relation(fields: [companyId], references: [id], onDelete: Restrict)
   job         Job          @relation(fields: [jobId], references: [id], onDelete: Restrict)
-  experiences Experience[] // technical back-relation: required by Prisma, creates no column, never queried
+  experiences Experience[]
 
   @@unique([companyId, jobId])
   @@index([jobId])
@@ -79,12 +77,12 @@ model Experience {
   profileId    Int       @map("profile_id")
   positionId   Int       @map("position_id")
   /// [Period]
-  from         String    @db.VarChar(10) // Хранит "2024-05" или "2024-05-15"
+  from         String    @db.VarChar(10) // Может хранить в формате, допустимом к преобразованию в ISO, пример: "2024-05" или "2024-05-15"
   to           String?   @db.VarChar(10) // null = по настоящее время
   achievements String[]
   profile      Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
   position     Position  @relation(fields: [positionId], references: [id], onDelete: Restrict)
-  projects     Project[] // technical back-relation: required by Prisma, never queried
+  projects     Project[]
 
   @@unique([profileId, positionId])
   @@index([to]) 

@@ -1,3 +1,5 @@
+scalar JSON
+
 type Query {
   profile(id: Int!): Profile
 }
@@ -6,15 +8,10 @@ type Profile {
   id: ID!
   name: String!
   description: String
-  links: [Link!]
-  skills: [Skill!]
-  experience: [Experience!]
-  projects: [Project!]
-}
-
-type Skill {
-  id: ID!
-  name: String!
+  links: [Link!]!
+  skills: [String!]!
+  experience: [Experience!]!
+  projects: [Project!]!
 }
 
 type Link {
@@ -24,27 +21,12 @@ type Link {
   project: Project
 }
 
-type Company {
-  id: ID!
-  name: String!
-}
-
-type Job {
-  id: ID!
-  name: String!
-}
-
 type Experience {
   id: ID!
   company: String!
   position: String!
-  period: Period!
+  period: JSON!
   achievements: [String!]!
-}
-
-type Period {
-  from: String!
-  to: String
 }
 
 type Project {
