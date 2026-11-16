@@ -7,7 +7,7 @@ import { DataAccessModule } from '@/infrastructure/data-access/data-access.modul
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
+    ConfigModule.forRoot({ isGlobal: true }),
     DataAccessModule,
     ApiModule,
     GraphqlModule,

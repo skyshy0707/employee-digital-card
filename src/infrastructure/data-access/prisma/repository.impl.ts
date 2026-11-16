@@ -44,10 +44,14 @@ export class PrismaProfileRepository extends BaseRepository {
                     `
         },
         projects: {
-          fc_sql: 'p.id AS project_id, p.name AS project_name, l_1.url AS project_url',
+          fc_sql: 'p.id AS project_id, p.name AS project_name, l_1.url AS project_url, c_1.name AS project_company',
           join_sql: `
                     LEFT JOIN link l_1 ON l_1.profile_id = $1
                     LEFT JOIN project p ON p.link_id = l_1.id
+                    LEFT JOIN experience exp_1 ON  p.experience_id = exp_1.id
+                    LEFT JOIN position pos_1 ON exp_1.position_id = pos_1.id
+                    LEFT JOIN job j_1 ON pos_1.job_id = j_1.id
+                    LEFT JOIN company c_1 ON pos_1.company_id = c_1.id
                     `
         }
       },
@@ -103,7 +107,7 @@ export class PrismaProfileRepository extends BaseRepository {
     profile.description = raw[0].description
 
     for (let row of raw){
-      if (row.skill_id && !skills.has(row.skull_id)){
+      if (row.skill_id && !skills.has(row.skill_id)){
         var skill: string = row.skill_name
         skills.set(row.skill_id, skill)
       }
@@ -130,7 +134,7 @@ export class PrismaProfileRepository extends BaseRepository {
         project.id = row.project_id
         project.url = row.project_url
         project.name = row.project_name
-        project.company = row.company
+        project.company = row.project_company
         projects.set(row.project_id, project)
       }
     }
