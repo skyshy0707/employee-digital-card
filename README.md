@@ -20,8 +20,8 @@
 > #### NB! В случае ошибки сервера, обновите страницу и подождите порядка 2-х минут, чтобы сервис "проснулся" - данность хостинга на бесплатном тарифе.
 >
 > #### Только для локальной сборки:
-> ##### - docker-compose.yml
-> ##### - .env.development
+> - docker-compose.yml
+> - .env.development
 
 > ```bash
 > docker compose up -d --build
@@ -258,7 +258,7 @@ erDiagram
 
 ```javascript
 { 
-    objectFieldsClauses: 'table*.', // перечисление на SQL полей основного объекта 
+    objectFieldsClauses: 'table.*', // перечисление на SQL полей основного объекта 
     sqlParts: {
         <json_поле_связанных_объектов>: {
             fc_sql: 'table.field AS sfield, ...',// перечисление на SQL полей связанного объекта 
