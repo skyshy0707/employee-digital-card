@@ -18,10 +18,10 @@
 > [!WARNING]
 > #### Проект развёрнут на `SnapDeploy + Supabase (СУБД)`: https://employee-digital-card-217c7.containers.snapdeploy.app/api/graphql
 > #### NB! В случае ошибки сервера, обновите страницу и подождите порядка 2-х минут, чтобы сервис "проснулся" - данность хостинга на бесплатном тарифе.
+>
 > #### Только для локальной сборки:
 > ##### - docker-compose.yml
 > ##### - .env.development
-> ##### - Dockerfile
 
 > ```bash
 > docker compose up -d --build
