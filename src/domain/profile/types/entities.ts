@@ -1,6 +1,5 @@
 /**
- * Доменные сущности цифровой визитки с их составляющими.
- * Декораторы GraphQL для определения типа в Apollo Server.
+ * Доменные сущности цифровой визитки с их составляющими
  */
 
 import { ObjectType, Field, ID } from '@nestjs/graphql';
@@ -55,8 +54,6 @@ export class Experience {
 
   @Field(() => GraphQLJSON)
   period: Period;
-
-
 
   @Field(() => [String])
   achievements: string[];

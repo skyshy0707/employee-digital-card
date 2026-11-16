@@ -15,8 +15,8 @@ import { ProfileResolver } from '@/graphql/profile.resolver';
       autoSchemaFile: join(process.cwd(), 'src/graphql/schema.gql'),
       sortSchema: true,
       introspection: true,
-      path: '/api/graphql', // соответствует setGlobalPrefix('api') в main.ts
-      playground: true, // Apollo Sandbox / GraphQL Playground
+      path: '/api/graphql', // для префикса пути graphql
+      playground: true, // Включение Apollo Sandbox / GraphQL Playground
     }),
   ],
   providers: [ProfileResolver],

@@ -7,7 +7,7 @@ const KNOWN_PROVIDERS: ReadonlyArray<readonly [domain: string, provider: string]
   ['hh.ru', 'HeadHunter'],
 ];
 
-/** Вычисляет провайдер ссылки по хосту URL. В БД не хранится — считается на лету. */
+/** Вычисляет провайдер ссылки по хосту URL для вычисляемого поля. */
 export function resolveLinkProvider(url: string): string {
   let host: string;
   try {

@@ -1,6 +1,6 @@
 /**
  * Обёртка над PrismaClient.
- * Реализует OnModuleInit, чтобы подключение к БД устанавливалось при старте модуля.
+ * Реализует OnModuleInit, чтобы подключение к СУБД устанавливалось при старте модуля.
  */
 
 import { Injectable, OnModuleInit } from '@nestjs/common';
